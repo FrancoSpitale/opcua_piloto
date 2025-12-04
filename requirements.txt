@@ -1,0 +1,29 @@
+# Core del sistema
+fastapi
+uvicorn[standard]
+
+# Cliente/servidor OPC UA
+opcua
+
+# Dashboard y visualización
+streamlit
+plotly
+
+# Datos / ETL
+pandas
+numpy
+
+# InfluxDB
+influxdb-client
+
+# Utilidades
+requests
+python-dateutil
+
+# Generación de reportes
+reportlab
+xlsxwriter
+matplotlib
+
+# Advertencias opcionales
+pytz
