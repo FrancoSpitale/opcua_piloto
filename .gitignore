@@ -1,1 +1,35 @@
+# === Python ===
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.log
+
+# === Virtual environments ===
+.venv/
+env/
+venv/
+
+# === Streamlit ===
+.streamlit/*.json
+
+# === ngrok ===
+ngrok.yml
+ngrok.log
+ngrok_recovery_codes*.txt
+
+# === Windows ===
+Thumbs.db
+Desktop.ini
+
+# === IDE ===
+.vscode/
+.idea/
+
+# === Docker artifacts (si los usás) ===
+*.pid
+
+# === Opcional: claves privadas ===
+*.pem
+*.key
 # gitignore 
