@@ -1,0 +1,328 @@
+{
+  "id": null,
+  "uid": "inyectora-opcua-adv-final",
+  "title": "Inyectora OPC UA - Avanzado (Final)",
+  "schemaVersion": 39,
+  "version": 1,
+  "style": "dark",
+  "editable": true,
+  "tags": ["inyectora", "opcua", "influxdb", "avanzado"],
+  "timezone": "",
+  "refresh": "5s",
+  "panels": [
+    {
+      "id": 1,
+      "type": "timeseries",
+      "title": "Caudalímetros - Tendencia (24 sensores)",
+      "datasource": {
+        "type": "influxdb",
+        "uid": "bf5tulblktji8a"
+      },
+      "gridPos": { "h": 9, "w": 24, "x": 0, "y": 0 },
+      "targets": [
+        {
+          "refId": "A",
+          "queryType": "flux",
+          "query": "from(bucket: \"inyectora_data\")\n  |> range(start: -30m)\n  |> filter(fn: (r) => r._measurement == \"caudalimetros\")\n  |> filter(fn: (r) => r._field == \"value\")\n  |> filter(fn: (r) => r.machine == \"INY_01\")\n  |> group(columns: [\"sensor\"])\n"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      }
+    },
+    {
+      "id": 2,
+      "type": "stat",
+      "title": "Último valor por caudalímetro",
+      "datasource": {
+        "type": "influxdb",
+        "uid": "bf5tulblktji8a"
+      },
+      "gridPos": { "h": 6, "w": 12, "x": 0, "y": 9 },
+      "targets": [
+        {
+          "refId": "A",
+          "queryType": "flux",
+          "query": "from(bucket: \"inyectora_data\")\n  |> range(start: -30m)\n  |> filter(fn: (r) => r._measurement == \"caudalimetros\")\n  |> filter(fn: (r) => r._field == \"value\")\n  |> filter(fn: (r) => r.machine == \"INY_01\")\n  |> last()\n  |> group(columns: [\"sensor\"])\n"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "none",
+          "decimals": 2
+        },
+        "overrides": []
+      },
+      "options": {
+        "orientation": "horizontal",
+        "layout": "grid",
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto"
+      }
+    },
+    {
+      "id": 3,
+      "type": "stat",
+      "title": "Molde actual (tag mold)",
+      "datasource": {
+        "type": "influxdb",
+        "uid": "bf5tulblktji8a"
+      },
+      "gridPos": { "h": 6, "w": 4, "x": 12, "y": 9 },
+      "targets": [
+        {
+          "refId": "A",
+          "queryType": "flux",
+          "query": "from(bucket: \"inyectora_data\")\n  |> range(start: -30m)\n  |> filter(fn: (r) => r._measurement == \"caudalimetros\")\n  |> filter(fn: (r) => r.machine == \"INY_01\")\n  |> keep(columns: [\"_time\", \"mold\"])\n  |> last()\n"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "none",
+          "decimals": 0
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto"
+      }
+    },
+    {
+      "id": 4,
+      "type": "stat",
+      "title": "Máquina en automático (último estado)",
+      "datasource": {
+        "type": "influxdb",
+        "uid": "bf5tulblktji8a"
+      },
+      "gridPos": { "h": 6, "w": 4, "x": 16, "y": 9 },
+      "targets": [
+        {
+          "refId": "A",
+          "queryType": "flux",
+          "query": "from(bucket: \"inyectora_data\")\n  |> range(start: -30m)\n  |> filter(fn: (r) => r._measurement == \"caudalimetros\")\n  |> filter(fn: (r) => r._field == \"automatic\")\n  |> filter(fn: (r) => r.machine == \"INY_01\")\n  |> last()\n"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bool",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "red", "value": null },
+              { "color": "green", "value": 1 }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto"
+      }
+    },
+    {
+      "id": 5,
+      "type": "stat",
+      "title": "Pulso de inyección (último estado)",
+      "datasource": {
+        "type": "influxdb",
+        "uid": "bf5tulblktji8a"
+      },
+      "gridPos": { "h": 6, "w": 4, "x": 20, "y": 9 },
+      "targets": [
+        {
+          "refId": "A",
+          "queryType": "flux",
+          "query": "from(bucket: \"inyectora_data\")\n  |> range(start: -30m)\n  |> filter(fn: (r) => r._measurement == \"caudalimetros\")\n  |> filter(fn: (r) => r._field == \"injection_pulse\")\n  |> filter(fn: (r) => r.machine == \"INY_01\")\n  |> last()\n"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bool",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "red", "value": null },
+              { "color": "green", "value": 1 }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto"
+      }
+    },
+    {
+      "id": 6,
+      "type": "timeseries",
+      "title": "Promedio global caudalímetros (value)",
+      "datasource": {
+        "type": "influxdb",
+        "uid": "bf5tulblktji8a"
+      },
+      "gridPos": { "h": 6, "w": 8, "x": 0, "y": 15 },
+      "targets": [
+        {
+          "refId": "A",
+          "queryType": "flux",
+          "query": "from(bucket: \"inyectora_data\")\n  |> range(start: -30m)\n  |> filter(fn: (r) => r._measurement == \"caudalimetros\")\n  |> filter(fn: (r) => r._field == \"value\")\n  |> filter(fn: (r) => r.machine == \"INY_01\")\n  |> aggregateWindow(every: 1m, fn: mean, createEmpty: false)\n"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "hidden",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      }
+    },
+    {
+      "id": 7,
+      "type": "gauge",
+      "title": "Desviación estándar caudalímetros (indicador de anomalía)",
+      "datasource": {
+        "type": "influxdb",
+        "uid": "bf5tulblktji8a"
+      },
+      "gridPos": { "h": 6, "w": 8, "x": 8, "y": 15 },
+      "targets": [
+        {
+          "refId": "A",
+          "queryType": "flux",
+          "query": "from(bucket: \"inyectora_data\")\n  |> range(start: -30m)\n  |> filter(fn: (r) => r._measurement == \"caudalimetros\")\n  |> filter(fn: (r) => r._field == \"value\")\n  |> filter(fn: (r) => r.machine == \"INY_01\")\n  |> stddev()\n"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "min": 0,
+          "unit": "none",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "orange", "value": 5 },
+              { "color": "red", "value": 10 }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": ["last"],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdLabels": true,
+        "showThresholdMarkers": true
+      }
+    },
+    {
+      "id": 8,
+      "type": "stat",
+      "title": "Porcentaje de tiempo en automático (última hora)",
+      "datasource": {
+        "type": "influxdb",
+        "uid": "bf5tulblktji8a"
+      },
+      "gridPos": { "h": 6, "w": 8, "x": 16, "y": 15 },
+      "targets": [
+        {
+          "refId": "A",
+          "queryType": "flux",
+          "query": "from(bucket: \"inyectora_data\")\n  |> range(start: -1h)\n  |> filter(fn: (r) => r._measurement == \"caudalimetros\")\n  |> filter(fn: (r) => r._field == \"automatic\")\n  |> filter(fn: (r) => r.machine == \"INY_01\")\n  |> aggregateWindow(every: 5m, fn: mean, createEmpty: false)\n  |> mean()\n"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit",
+          "min": 0,
+          "max": 1
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto"
+      }
+    },
+    {
+      "id": 9,
+      "type": "timeseries",
+      "title": "Inyecciones por minuto (conteo de pulsos)",
+      "datasource": {
+        "type": "influxdb",
+        "uid": "bf5tulblktji8a"
+      },
+      "gridPos": { "h": 6, "w": 24, "x": 0, "y": 21 },
+      "targets": [
+        {
+          "refId": "A",
+          "queryType": "flux",
+          "query": "from(bucket: \"inyectora_data\")\n  |> range(start: -1h)\n  |> filter(fn: (r) => r._measurement == \"caudalimetros\")\n  |> filter(fn: (r) => r._field == \"injection_pulse\")\n  |> filter(fn: (r) => r.machine == \"INY_01\")\n  |> aggregateWindow(every: 1m, fn: sum, createEmpty: false)\n"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "hidden",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      }
+    }
+  ],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
+  "timepicker": {
+    "refresh_intervals": ["5s", "10s", "30s", "1m", "5m"]
+  }
+}
