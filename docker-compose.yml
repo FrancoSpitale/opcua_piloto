@@ -1,78 +1,93 @@
 version: "3.9"
 
 services:
+  # ==========================
+  # InfluxDB
+  # ==========================
   influxdb:
     image: influxdb:2.7
     container_name: influxdb
     restart: unless-stopped
     ports:
       - "8086:8086"
+    env_file:
+      - .env
     environment:
       DOCKER_INFLUXDB_INIT_MODE: setup
       DOCKER_INFLUXDB_INIT_USERNAME: admin
       DOCKER_INFLUXDB_INIT_PASSWORD: admin123
-      DOCKER_INFLUXDB_INIT_ORG: inyectora
-      DOCKER_INFLUXDB_INIT_BUCKET: inyectora_data
-      DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: aUAFfIYK049d7k-NSyjVbcBChuZImuU4dBp4SpX89qOVflRDqPoXHXmQyNH9Tamc_5e9-Sr4jzWWqUCgCNpdnw==
+      DOCKER_INFLUXDB_INIT_ORG: ${INFLUX_ORG}
+      DOCKER_INFLUXDB_INIT_BUCKET: ${INFLUX_BUCKET}
+      DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: ${INFLUX_TOKEN}
     volumes:
       - influxdb_data:/var/lib/influxdb2
 
+  # ==========================
+  # FastAPI API Server
+  # ==========================
   api_server:
     build: .
     container_name: opcua_api
+    restart: unless-stopped
     depends_on:
       - influxdb
-    environment:
-      INFLUX_URL: http://influxdb:8086
-      INFLUX_TOKEN: aUAFfIYK049d7k-NSyjVbcBChuZImuU4dBp4SpX89qOVflRDqPoXHXmQyNH9Tamc_5e9-Sr4jzWWqUCgCNpdnw==
-      INFLUX_ORG: inyectora
-      INFLUX_BUCKET: inyectora_data
+    env_file:
+      - .env
     command: >
-      uvicorn api_server:app
+      uvicorn main:app
       --host 0.0.0.0
       --port 8000
     ports:
       - "8000:8000"
 
+  # ==========================
+  # OPC UA Server Simulator
+  # ==========================
   opcua_server:
     build: .
     container_name: opcua_server_sim
+    restart: unless-stopped
     command: >
       python opcua_server_sim.py
-    restart: unless-stopped
 
+  # ==========================
+  # OPC UA Client Agent
+  # ==========================
   opcua_client:
     build: .
     container_name: opcua_client_agent
+    restart: unless-stopped
     depends_on:
       - api_server
       - opcua_server
+    env_file:
+      - .env
     environment:
       API_URL: http://api_server:8000/readings
-      # Si en tu script usás otra variable, ajustala
     command: >
       python opcua_client_agent.py
-    restart: unless-stopped
 
+  # ==========================
+  # Dashboard Streamlit
+  # ==========================
   dashboard:
     build: .
     container_name: opcua_dashboard
+    restart: unless-stopped
     depends_on:
       - influxdb
-    environment:
-      INFLUX_URL: "http://influxdb:8086"
-      INFLUX_TOKEN: "aUAFfIYK049d7k-NSyjVbcBChuZImuU4dBp4SpX89qOVflRDqPoXHXmQyNH9Tamc_5e9-Sr4jzWWqUCgCNpdnw=="
-      INFLUX_ORG: "inyectora"
-      INFLUX_BUCKET: "inyectora_data"
-      FASTAPI_BASE_URL: http://api_server:8000
-
+      - api_server
+    env_file:
+      - .env
     command: >
       streamlit run app.py
       --server.port 8501
       --server.address 0.0.0.0
     ports:
       - "8501:8501"
-    restart: unless-stopped
 
+# ==========================
+# Volúmenes
+# ==========================
 volumes:
   influxdb_data:
