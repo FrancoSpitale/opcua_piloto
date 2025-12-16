@@ -68,30 +68,28 @@ from(bucket: "{INFLUX_BUCKET}")
     if not isinstance(tables, list):
         tables = [tables]
     if len(tables) == 0:
-        return pd.DataFrame()
+        return pd.DataFrame(columns=["time", "sensor", "value"])
 
-    df = pd.concat(tables)
+    df = pd.concat(tables, ignore_index=True)
+
     # si no hay datos, devolver DF vacío con el esquema esperado
     if df is None or df.empty:
-    return pd.DataFrame(columns=["time", "sensor", "value"])
+        return pd.DataFrame(columns=["time", "sensor", "value"])
 
     # asegurar columnas mínimas
     if "_time" not in df.columns or "_value" not in df.columns:
-    return pd.DataFrame(columns=["time", "sensor", "value"])
+        return pd.DataFrame(columns=["time", "sensor", "value"])
 
     # si no vino el tag sensor, crear uno
     if "sensor" not in df.columns:
-    df["sensor"] = "unknown"
+        df["sensor"] = "unknown"
 
     df = df[["_time", "sensor", "_value"]].rename(
-    columns={"_time": "time", "_value": "value"}
-)
-
-return df
+        columns={"_time": "time", "_value": "value"}
+    )
 
     df = df.sort_values("time")
     return df
-
 
 def get_last_bool(field: str, machine: str = "INY_01"):
     """
