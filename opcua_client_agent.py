@@ -1,3 +1,7 @@
+# ==========================
+# opcua_client_agent.py
+# ==========================
+
 from opcua import Client
 import time
 import requests
@@ -6,13 +10,14 @@ from datetime import datetime, timezone
 print("Iniciando cliente OPC UA...")
 
 # Endpoint OPC UA del servidor simulado
-url = "opc.tcp://localhost:4840/inyectora/opcua/"
+url = "opc.tcp://opcua_server_sim:4840/inyectora/opcua/"
 print(f"URL OPC UA objetivo: {url}")
 
 client = Client(url)
 
 # Endpoint de la API FastAPI
-API_URL = "http://127.0.0.1:8000/readings"
+API_URL = "http://opcua_api:8000/readings"
+
 
 try:
     print("Conectando al servidor OPC UA...")

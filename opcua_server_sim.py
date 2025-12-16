@@ -1,3 +1,8 @@
+
+# ==========================
+# Ocupa_server_sim.py
+# ==========================
+
 from opcua import ua, Server
 import time
 import random

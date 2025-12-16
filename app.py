@@ -1,3 +1,7 @@
+# ==========================
+# appy.py
+# ==========================
+
 import io
 import matplotlib.pyplot as plt
 from reportlab.lib.pagesizes import A4
@@ -10,34 +14,40 @@ import requests
 from influxdb_client import InfluxDBClient, Point
 from influxdb_client.client.write_api import SYNCHRONOUS
 from textwrap import wrap
-
+import os
 
 # ==========================
 # Configuración InfluxDB
 # ==========================
-INFLUX_URL = "http://localhost:8086"
-INFLUX_TOKEN = "aUAFfIYK049d7k-NSyjVbcBChuZImuU4dBp4SpX89qOVflRDqPoXHXmQyNH9Tamc_5e9-Sr4jzWWqUCgCNpdnw=="
-INFLUX_ORG = "inyectora"
-INFLUX_BUCKET = "inyectora_data"
+
+INFLUX_URL = os.getenv("INFLUX_URL", "http://influxdb:8086")
+INFLUX_TOKEN = os.getenv("INFLUX_TOKEN")
+INFLUX_ORG = os.getenv("INFLUX_ORG", "inyectora")
+INFLUX_BUCKET = os.getenv("INFLUX_BUCKET", "inyectora_data")
+
+if not INFLUX_TOKEN:
+    raise RuntimeError("INFLUX_TOKEN no definido en variables de entorno")
 
 client = InfluxDBClient(
     url=INFLUX_URL,
     token=INFLUX_TOKEN,
     org=INFLUX_ORG,
 )
+
 query_api = client.query_api()
 write_api = client.write_api(write_options=SYNCHRONOUS)
 
 # ==========================
 # Configuración API / Alertas
 # ==========================
-FASTAPI_BASE_URL = "http://127.0.0.1:8000"
+FASTAPI_BASE_URL = os.getenv("FASTAPI_BASE_URL", "http://api_server:8000")
 
+# ==========================
 # Telegram
-TELEGRAM_ENABLED = True               # poné False si no querés usar Telegram
-TELEGRAM_BOT_TOKEN = "8421940545:AAHFuNdoBFm5D4TNwvenrDXMb6r1QaFRQt4"
-TELEGRAM_CHAT_ID = "5773861622"
-
+# ==========================
+TELEGRAM_ENABLED = os.getenv("TELEGRAM_ENABLED", "false").lower() == "true"
+TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
+TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
 
 # ==========================
 # Funciones auxiliares - Datos de proceso
