@@ -89,7 +89,6 @@ from(bucket: "{INFLUX_BUCKET}")
 
 return df
 
-    )
     df = df.sort_values("time")
     return df
 
