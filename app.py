@@ -71,8 +71,24 @@ from(bucket: "{INFLUX_BUCKET}")
         return pd.DataFrame()
 
     df = pd.concat(tables)
+    # si no hay datos, devolver DF vacío con el esquema esperado
+    if df is None or df.empty:
+    return pd.DataFrame(columns=["time", "sensor", "value"])
+
+    # asegurar columnas mínimas
+    if "_time" not in df.columns or "_value" not in df.columns:
+    return pd.DataFrame(columns=["time", "sensor", "value"])
+
+    # si no vino el tag sensor, crear uno
+    if "sensor" not in df.columns:
+    df["sensor"] = "unknown"
+
     df = df[["_time", "sensor", "_value"]].rename(
-        columns={"_time": "time", "_value": "value"}
+    columns={"_time": "time", "_value": "value"}
+)
+
+return df
+
     )
     df = df.sort_values("time")
     return df
