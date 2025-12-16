@@ -8,17 +8,22 @@ from influxdb_client.client.write_api import SYNCHRONOUS
 # ==========================
 # Configuración InfluxDB
 # ==========================
-INFLUX_URL = "http://localhost:8086"
-INFLUX_TOKEN = "aUAFfIYK049d7k-NSyjVbcBChuZImuU4dBp4SpX89qOVflRDqPoXHXmQyNH9Tamc_5e9-Sr4jzWWqUCgCNpdnw=="
-INFLUX_ORG = "inyectora"
-INFLUX_BUCKET = "inyectora_data"
+
+INFLUX_URL = os.getenv("INFLUX_URL", "http://influxdb:8086")
+INFLUX_TOKEN = os.getenv("INFLUX_TOKEN")
+INFLUX_ORG = os.getenv("INFLUX_ORG", "inyectora")
+INFLUX_BUCKET = os.getenv("INFLUX_BUCKET", "inyectora_data")
+
+if not INFLUX_TOKEN:
+    raise RuntimeError("INFLUX_TOKEN no definido en variables de entorno")
 
 client = InfluxDBClient(
     url=INFLUX_URL,
     token=INFLUX_TOKEN,
-    org=INFLUX_ORG
+    org=INFLUX_ORG,
 )
 
+query_api = client.query_api()
 write_api = client.write_api(write_options=SYNCHRONOUS)
 
 # ==========================
